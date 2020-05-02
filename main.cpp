@@ -6,6 +6,7 @@
 #include <sstream>
 #include <chrono>
 #include <random>
+#include <iterator>
 
 void loadInputIntoMatrix(Matrix<int>& matrix, fstream& inputFile, fstream& inputFile2, vector<string>& rowNames,
         vector<string>& columnNames, vector<int>& allWeights)
