@@ -8,13 +8,17 @@
 #include "RowOrColumn.h"
 #include <algorithm>
 
+
+/*
+ * This is the Matrix class. It represents a matrix data structure. It has two vectors to represent the matrix.
+ * One vector is meant to represent the rows and one is meant to represent the columns. The reason for the separation
+ * between the rows is columns is to allow easier access to covering the rows or columns in the Hungarian Algorithm
+ */
 template<class T>
 class Matrix
 {
     template<class U> friend class RowOrColumn;
     template<class V> friend class Value;
-
-
 
 private:
 
@@ -33,20 +37,17 @@ public:
      void addCol(RowOrColumn<T>&);
      void doStepOne();
      void doStepTwo();
-     void doStepThree(vector<string>, vector<string>, vector<int>, int&);
-     void doStepFour(vector<string>, vector<string>, vector<int>,int&);
-     void doStepFive(int, vector<string>, vector<string>, vector<int>, int&);
-     void doStepSix(int, vector<string>, vector<string>, vector<int>, int&);
-     void doFinalStep(vector<string>, vector<string>, vector<int>, int&);
+     void doStepThree(vector<string>&, vector<string>&, vector<int>&, int&);
+     void doStepFour(vector<string>&, vector<string>&, vector<int>&,int&);
+     void doStepFive(int, vector<string>&, vector<string>&, vector<int>&, int&);
+     void doStepSix(int, vector<string>&, vector<string>&, vector<int>&, int&);
+     void doFinalStep(vector<string>&, vector<string>&, vector<int>&, int&);
 
      void colReduction();
-     void createZeroMatrix(Matrix<T>&);
-     vector<int> getToBeCovered();
      vector<int> getToBeCovered2();
      void coverRowsAndCols(vector<int>);
      void reset(vector<int>);
-     void findOptimalAssignment(vector<string>, vector<string>, vector<int>);
-     bool findIfUsefulResult();
+     void findOptimalAssignment(vector<string>&, vector<string>&, vector<int>&);
      int hasAnyAssignments(int);
      void addAssignments();
      void markRowsNoAssignments(vector<int>&);
@@ -55,26 +56,34 @@ public:
 
      int getSize();
      void print();
-     void recursiveOptimal(vector<int>&);
-     void recursiveInner(int, vector<int>&);
      void primeMinVal(int);
      void setAllPrimeToFalse();
 
 };
 
-
+/*
+ * Pushes a newly created row into the matrix
+ */
 template<class T>
 void Matrix<T>::addRow(RowOrColumn<T>& currRow)
 {
     allRows.push_back(currRow);
 }
 
+/*
+ * Pushes a newly created column into the matrix
+ */
 template<class T>
 void Matrix<T>::addCol(RowOrColumn<T>& currCol)
 {
     allColumns.push_back(currCol);
 }
 
+/*
+ * This is the stepOne for the more efficient algorithm of the Hungarian Algorithm
+ * For each row of the matrix, find the smallest element and subtract it from every element in its row.
+ * This function is only performed once.
+ */
 template<class T>
 void Matrix<T>::doStepOne()
 {
@@ -106,6 +115,12 @@ void Matrix<T>::doStepOne()
 
 }
 
+/*
+ * This is the stepTwo function for the more efficient implementation of the Hungarian Algorithm
+ * Find a zero (Z) in the resulting matrix.  If there is no starred zero in its row or column, star Z.
+ * Repeat for each element in the matrix.
+ * This function is only performed once.
+ */
 template<class T>
 void Matrix<T>::doStepTwo()
 {
@@ -127,8 +142,13 @@ void Matrix<T>::doStepTwo()
     }
 }
 
+/*
+ * This is the stepThree for the more efficient implementation of the Hungarian Algorithm.
+ * Cover each column containing a starred zero.  If K columns are covered, the starred zeros
+ * describe a complete set of unique assignments.  In this case, Go to FinalStep, otherwise, Go to Step 4.
+ */
 template<class T>
-void Matrix<T>::doStepThree(vector<string> allRowNames, vector<string> allColNames, vector<int> allWeights, int& done)
+void Matrix<T>::doStepThree(vector<string>& allRowNames, vector<string>& allColNames, vector<int>& allWeights, int& done)
 {
     int numRowsCovered = 0;
     for (int i = 0; i < allColumns.size(); i++)
@@ -151,9 +171,15 @@ void Matrix<T>::doStepThree(vector<string> allRowNames, vector<string> allColNam
 }
 
 
-
+/*
+ * This is the stepFour for the more efficient implementation of the Hungarian Algorithm.
+ * Find a noncovered zero and prime it.  If there is no starred zero in the row containing
+ * this primed zero, Go to Step 5.  Otherwise, cover this row and uncover the column containing
+ * the starred zero. Continue in this manner until there are no uncovered zeros left. Save the
+ * smallest uncovered value and Go to Step 6.
+ */
 template<class T>
-void Matrix<T>::doStepFour(vector<string> allRowNames, vector<string> allColNames, vector<int> allWeights, int& done)
+void Matrix<T>::doStepFour(vector<string>& allRowNames, vector<string>& allColNames, vector<int>& allWeights, int& done)
 {
      int minVal = 1000000;
      for (int i = 0; i < allRows.size(); i++)
@@ -203,9 +229,17 @@ void Matrix<T>::doStepFour(vector<string> allRowNames, vector<string> allColName
 
 }
 
-
+/*
+ * This is the stepFive for the more efficient implementation of the Hungarian Algorithm.
+ * Construct a series of alternating primed and starred zeros as follows.  Let Z0 represent
+ * the uncovered primed zero found in Step 4.  Let Z1 denote the starred zero in the column
+ * of Z0 (if any). Let Z2 denote the primed zero in the row of Z1 (there will always be one).
+ * Continue until the series terminates at a primed zero that has no starred zero in its column.
+ * Unstar each starred zero of the series, star each primed zero of the series, erase all primes
+ * and uncover every line in the matrix.  Return to Step 3.
+ */
 template<class T>
-void Matrix<T>::doStepFive(int index, vector<string> allRowNames, vector<string> allColNames, vector<int> allWeights, int& done)
+void Matrix<T>::doStepFive(int index, vector<string>& allRowNames, vector<string>& allColNames, vector<int>& allWeights, int& done)
 {
      bool starredZero = true;
      while (starredZero)
@@ -277,8 +311,14 @@ void Matrix<T>::doStepFive(int index, vector<string> allRowNames, vector<string>
 
 }
 
+/*
+ * This is the stepSix for more efficient implementation of the Hungarian Algorithm
+ * Add the value found in Step 4 to every element of each covered row, and subtract
+ * it from every element of each uncovered column.  Return to Step 4 without altering
+ * any stars, primes, or covered lines.
+ */
 template<class T>
-void Matrix<T>::doStepSix(int val, vector<string> allRowNames, vector<string> allColNames, vector<int> allWeights, int& done)
+void Matrix<T>::doStepSix(int val, vector<string>& allRowNames, vector<string>& allColNames, vector<int>& allWeights, int& done)
 {
     for (int i = 0; i < allRows.size(); i++)
     {
@@ -314,8 +354,13 @@ void Matrix<T>::doStepSix(int val, vector<string> allRowNames, vector<string> al
 
 }
 
+/*
+ * This is the finalStep of the more efficient implementation of the Hungarian Algorithm
+ * Each starred zero is the row and column number of the assignment in the matrix that will result
+ * in the most optimal final product.
+ */
 template<class T>
-void Matrix<T>::doFinalStep(vector<string> allRowNames, vector<string> allColNames, vector<int> allWeights, int& done)
+void Matrix<T>::doFinalStep(vector<string>& allRowNames, vector<string>& allColNames, vector<int>& allWeights, int& done)
 {
     cout << "Optimal Assignment Found! O(n^3)" << endl;
     int totalWeight = 0;
@@ -331,9 +376,12 @@ void Matrix<T>::doFinalStep(vector<string> allRowNames, vector<string> allColNam
     cout << "Total Weight: " << totalWeight << endl;
 
     done = 1;
-
 }
 
+/*
+ * This is a function that finds and subtracts the lowest value from each column of the matrix. This operation
+ * is performed once in the less efficient implementation of the Hungarian Algorithm
+ */
 template<class T>
 void Matrix<T>::colReduction()
 {
@@ -364,95 +412,10 @@ void Matrix<T>::colReduction()
     }
 }
 
-template<class T>
-void Matrix<T>::createZeroMatrix(Matrix<T>& zeroMatrix)
-{
-    for (int i = 0; i < allRows.size(); i++)
-    {
-        RowOrColumn<int> row;
-        for (int j = 0; j < allColumns.size(); j++)
-        {
-            if (allRows[i].allValues[j].data != 0)
-            {
-                Value<int> val(0);
-                row.addTo(val);
-            }
-            else
-            {
-                int numZerosInRow = 0;
-                int numZerosInCol = 0;
-
-                for (int k = 0; k < allRows.size(); k++)
-                {
-                    if (allRows[i].allValues[k].data == 0)
-                    {
-                        numZerosInRow++;
-                    }
-                }
-
-                for (int l = 0; l < allRows.size(); l++)
-                {
-                    if (allColumns[j].allValues[l].data == 0)
-                    {
-                        numZerosInCol++;
-                    }
-                }
-
-                int finalVal = 0;
-                if (numZerosInRow > numZerosInCol)
-                {
-                    finalVal = numZerosInRow * -1;
-                }
-                else
-                {
-                    finalVal = numZerosInCol;
-                }
-
-                Value<int> val(finalVal);
-                row.addTo(val);
-
-        }
-
-
-
-        }
-
-        zeroMatrix.addRow(row);
-
-    }
-
-}
-
-template<class T>
-vector<int> Matrix<T>::getToBeCovered()
-{
-    vector<int> coveredRowsAndCols;
-
-    for (int i = 0; i < allRows.size(); i++)
-    {
-        for (int j = 0; j < allRows.size(); j++)
-        {
-            if (allRows[i].allValues[j].data != 0)
-            {
-                if (allRows[i].allValues[j].data > 0)
-                {
-                    int colToBeCovered = j + 1;
-                    coveredRowsAndCols.push_back(colToBeCovered);
-                }
-                else
-                {
-                    int rowToBeCovered = (i + 1) * -1;
-                    coveredRowsAndCols.push_back(rowToBeCovered);
-                }
-            }
-
-
-        }
-    }
-
-    return coveredRowsAndCols;
-}
-
+/*
+ * This is the coverRowsAndCols function. It has a parameter of toBeCovered that represents the rows and cols that
+ * need to be covered. The function iterates through the vector and covers all the necessary rows and cols.
+ */
 template<class T>
 void Matrix<T>::coverRowsAndCols(vector<int> toBeCovered) {
 
@@ -472,6 +435,10 @@ void Matrix<T>::coverRowsAndCols(vector<int> toBeCovered) {
 
 }
 
+/*
+ * This is the reset function. The function is called in order to eliminate all starred zeros, primed zeroes, and
+ * row covers.
+ */
 template<class T>
 void Matrix<T>::reset(vector<int> toBeCovered)
 {
@@ -542,6 +509,10 @@ void Matrix<T>::reset(vector<int> toBeCovered)
 
 }
 
+/*
+ * This is the primeMinVal function. This function finds the minimum value in the row given and primes all of the
+ * elements in that row that has the minimum value.
+ */
 template<class T>
 void Matrix<T>::primeMinVal(int row) {
 
@@ -566,12 +537,17 @@ void Matrix<T>::primeMinVal(int row) {
 
 }
 
+/*
+ * This is the findOptimalAssignment function. This function is called when the number of columns and rows that
+ * are covered is equal to N. This function is what prohibits the algorithm from being optimal. The function attempts
+ * to find the minimal possible assignment in an efficient manner. However, in order to perfectly find the assignment
+ * every time, the algorithm would approach O(n!). This function allows the algorithm to approach O(n^4). However,
+ * the assignments found might be slightly wrong. The function does a good job at getting very close to the optimal
+ * without being inefficient.
+ */
 template<class T>
-void Matrix<T>::findOptimalAssignment(vector<string> rowNames, vector<string> colNames, vector<int> allWeights)
+void Matrix<T>::findOptimalAssignment(vector<string>& rowNames, vector<string>& colNames, vector<int>& allWeights)
 {
-
-
-
     setAllPrimeToFalse();
     vector<int> curr;
     vector<int>::iterator it;
@@ -609,14 +585,12 @@ void Matrix<T>::findOptimalAssignment(vector<string> rowNames, vector<string> co
         int found = 0;
         for (int j = 0; j < allColumns.size(); j++)
         {
-
             int minVal = 1000000;
             for (int a = 0; a < allRows.size(); a++)
             {
                 if (allRows[currRow].allValues[a].data < minVal &&  allRows[currRow].allValues[a].isPrimed == false)
                 {
                     onRebound = 0;
-                    //it = find(curr.begin(), curr.end(), a);
                     minVal = allRows[currRow].allValues[a].data;
 
                 }
@@ -644,7 +618,6 @@ void Matrix<T>::findOptimalAssignment(vector<string> rowNames, vector<string> co
             }
 
             currRow++;
-            maximumAllowable = 0;
 
         }
         else
@@ -666,7 +639,9 @@ void Matrix<T>::findOptimalAssignment(vector<string> rowNames, vector<string> co
 
 }
 
-
+/*
+ * Determines if any rows contain primed zeroes.
+ */
 template<class T>
 int Matrix<T>::hasAnyAssignments(int row) {
 
@@ -682,6 +657,9 @@ int Matrix<T>::hasAnyAssignments(int row) {
 
 }
 
+/*
+ * This function stars the rows that do not contain any assignments (primed zeros)
+ */
 template<class T>
 void Matrix<T>::markRowsNoAssignments(vector<int>& markedRows) {
 
@@ -697,6 +675,9 @@ void Matrix<T>::markRowsNoAssignments(vector<int>& markedRows) {
 
 }
 
+/*
+ * This is the markColumns function that adds columns to the rows that have zeros in the newly marked  rows
+ */
 template<class T>
 void Matrix<T>::markColumns(vector<int>& markedColumns, vector<int> markedRows)
 {
@@ -716,24 +697,13 @@ void Matrix<T>::markColumns(vector<int>& markedColumns, vector<int> markedRows)
     }
 }
 
+/*
+ * This is the markRowsWithAssignments function. It will mark all of the rows that have starred zeros in the
+ * newly marked columns.
+ */
 template<class T>
 void Matrix<T>::markRowsWithAssignments(vector<int>& markedRows, vector<int> markedColumns)
 {
-   /* for (int i = 0; i < markedColumns.size(); i++)
-    {
-        for (int j = 0; j < allColumns.size(); j++)
-        {
-            if (allColumns[markedColumns[i]].allValues[j].isPrimed == true)
-            {
-                if (allRows[j].starredZero != 1)
-                {
-                    markedRows.push_back(j);
-                    allRows[j].starredZero = 1;
-                }
-            }
-        }
-    }*/
-
     for (int i = 0; i < allRows.size(); i++)
     {
         for (int j = 0; j < markedColumns.size(); j++)
@@ -751,6 +721,10 @@ void Matrix<T>::markRowsWithAssignments(vector<int>& markedRows, vector<int> mar
 
 }
 
+/*
+ * This is the addAssignments function. It attempts to star one zero in each row. However, if only one zero exists
+ * and there already exists a zero that is storred in the same column, the row will not receive a starred zero.
+ */
 template<class T>
 void Matrix<T>::addAssignments() {
 
@@ -779,6 +753,11 @@ void Matrix<T>::addAssignments() {
 
 }
 
+/*
+ * This is the getToBeCovered function. This function determines the minimal number of rows and/or columns necessary
+ * to cover all resulting zeros in the matrix. The function returns a vector of integers that represents the rows
+ * and columns to be covered.
+ */
 template<class T>
 vector<int> Matrix<T>::getToBeCovered2() {
 
@@ -796,7 +775,7 @@ vector<int> Matrix<T>::getToBeCovered2() {
         newColumns.clear();
         markColumns(newColumns, rowWithAssignments);
 
-        if (rowWithAssignments.size() == 0)
+        if (rowWithAssignments.empty())
         {
             exit = 1;
         }
@@ -821,119 +800,17 @@ vector<int> Matrix<T>::getToBeCovered2() {
         }
     }
 
-
-
-
     return finalToBeCovered;
-/*    vector<int> unassignedRows;
-    vector<int> unavailableCols;
-
-    vector<int> numbersZeroToN;
-
-    vector<int> finalToBeCovered;
-
-    for (int i = 0; i < allRows.size(); i++)
-    {
-        bool addToUnassignedRows = true;
-        int cameAgain = 0;
-        for (int j = 0; j < allColumns.size(); j++)
-        {
-
-            if (allRows[i].allValues[j].data == 0)
-            {
-                vector<int>::iterator it;
-                it = find(unavailableCols.begin(), unavailableCols.end(), j);
-                if (it == unavailableCols.end())
-                {
-                    if (cameAgain == 1)
-                    {
-                        allRows[i].starredZero = 1;
-                    }
-                    if (cameAgain == 0)
-                    {
-                        addToUnassignedRows = false;
-                        unavailableCols.push_back(j);
-                        cameAgain = 1;
-                    }
-
-                }
-            }
-
-        }
-
-        if (addToUnassignedRows)
-        {
-            unassignedRows.push_back(i);
-        }
-
-        numbersZeroToN.push_back(i);
-
-
-    }
-
-    vector<int> markedCols;
-
-    for (int i = 0; i < unassignedRows.size(); i++)
-    {
-        for (int j = 0; j < allRows.size(); j++)
-        {
-            if (allRows[unassignedRows[i]].allValues[j].data == 0)
-            {
-                markedCols.push_back(j);
-            }
-        }
-    }
-
-    vector<int> markedRows;
-
-    for (int i = 0; i < markedCols.size(); i++)
-    {
-        for (int j = 0; j < allColumns.size(); j++)
-        {
-            if (allColumns[markedCols[i]].allValues[j].data == 0)
-            {
-                if (allRows[j].starredZero != 1)
-                {
-                    markedRows.push_back(j);
-                }
-            }
-        }
-    }
-
-    vector<int> unmarkedRows;
-
-    for (int i = 0; i < numbersZeroToN.size(); i++)
-    {
-        vector<int>::iterator it;
-        it = find(markedRows.begin(), markedRows.end(), i);
-        if (it == markedRows.end())
-        {
-            unmarkedRows.push_back(i);
-        }
-    }
-
-
-    for (int i = 0; i < markedCols.size(); i++)
-    {
-        finalToBeCovered.push_back(markedCols[i] + 1);
-    }
-
-    for (int i = 0; i < unmarkedRows.size(); i++)
-    {
-        int temp = (unmarkedRows[i] + 1) * -1;
-        finalToBeCovered.push_back(temp);
-    }
-
-    return finalToBeCovered;*/
-
-
 
 }
 
 
 
 
-
+/*
+ * This function resets all stars on all elements to false
+ *
+ */
 template<class T>
 void Matrix<T>::resetStars(int row) {
 
@@ -947,7 +824,9 @@ void Matrix<T>::resetStars(int row) {
 
 }
 
-
+/*
+ * returns N sizee of matrix
+ */
 template<class T>
 int Matrix<T>::getSize() {
     return allRows.size();
@@ -958,68 +837,10 @@ Matrix<T>::Matrix() {
 
 }
 
-template<class T>
-bool Matrix<T>::findIfUsefulResult() {
 
-    vector<int> curr;
-    vector<int>::iterator it;
-    int currRow = 0;
-    bool reset = false;
-    int badResult = 0;
-
-    while(curr.size() < allRows.size())
-    {
-        if (reset)
-        {
-            if (currRow == -1)
-            {
-                badResult = 1;
-                break;
-            }
-            int resetCol = curr[curr.size() - 1];
-            curr.pop_back();
-            allRows[currRow].allValues[resetCol].isStarred = true;
-            resetStars(currRow);
-        }
-        int found = 0;
-        for (int j = 0; j < allColumns.size(); j++)
-        {
-            if (allRows[currRow].allValues[j].data == 0 && allRows[currRow].allValues[j].isStarred == false)
-            {
-                it = find(curr.begin(), curr.end(), j);
-                if (it == curr.end())
-                {
-                    curr.push_back(j);
-                    found = 1;
-                    reset = false;
-                    break;
-                }
-            }
-        }
-
-        if (found == 1)
-        {
-            currRow++;
-        }
-        else
-        {
-            currRow--;
-            reset = true;
-        }
-    }
-
-    if (badResult == 1)
-    {
-        return false;
-    }
-
-    if (badResult == 0)
-    {
-        return true;
-    }
-
-}
-
+/*
+ * prints all elements of matrix
+ */
 template<class T>
 void Matrix<T>::print() {
 
@@ -1035,25 +856,9 @@ void Matrix<T>::print() {
 
 }
 
-template<class T>
-void Matrix<T>::recursiveOptimal(vector<int>& rows) {
-
-    recursiveInner(0, rows);
-
-}
-
-template<class T>
-void Matrix<T>::recursiveInner(int row, vector<int>& rows) {
-
-    if (rows.size() == allRows.size())
-    {
-        return;
-    }
-
-
-
-}
-
+/*
+ * Sets all prime values to false
+ */
 template<class T>
 void Matrix<T>::setAllPrimeToFalse() {
 
@@ -1066,21 +871,6 @@ void Matrix<T>::setAllPrimeToFalse() {
     }
 
 }
-
-
-
-
-
-//template<class T>
-//Matrix<T>::Matrix(): allRows(), allColumns() {}
-
-
-
-
-
-
-
-
 
 
 #endif //HUNGARIANALGORITHM_MATRIX_H

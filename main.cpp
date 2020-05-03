@@ -8,6 +8,11 @@
 #include <random>
 #include <iterator>
 
+/*
+ * This is the loadInputIntoMatrix function. This function takes the input file and loads all of the necessary
+ * data into the matrix that will then be operated on to find the minimum assignment. This function is called right
+ * for each time a new algorithm needs to be performed on the input data.
+ */
 void loadInputIntoMatrix(Matrix<int>& matrix, fstream& inputFile, fstream& inputFile2, vector<string>& rowNames,
         vector<string>& columnNames, vector<int>& allWeights)
 {
@@ -17,9 +22,6 @@ void loadInputIntoMatrix(Matrix<int>& matrix, fstream& inputFile, fstream& input
     int numRowsAndColumns = stoi(numberOfRowsAndColumn);
 
     char temp[500];
-
-   // vector<string> rowNames;
-   // vector<string> columnNames;
 
     vector<RowOrColumn<int>> tempColumns;
 
@@ -94,6 +96,9 @@ void loadInputIntoMatrix(Matrix<int>& matrix, fstream& inputFile, fstream& input
     }
 }
 
+/*
+ * Removes the duplicates from vectors
+ */
 void remove(vector<int> &v)
 {
     auto end = v.end();
@@ -104,6 +109,11 @@ void remove(vector<int> &v)
     v.erase(end, v.end());
 }
 
+/*
+ * This is the logic that is used in order to perform the O(n^3) Hungarian Algorithm on the data for the
+ * Assignment Problem. As you can see, stepOne and stepTwo are only going to be performed once. However, stepThree
+ * includes a cyclic step that leads to steps Four, Five, and Six depending on their outcomes
+ */
 void doHungarianAlgorithm(Matrix<int>& matrix, vector<string>& rowNames,
         vector<string>& columnNames, vector<int>& allWeights)
 {
@@ -113,13 +123,17 @@ void doHungarianAlgorithm(Matrix<int>& matrix, vector<string>& rowNames,
     matrix.doStepThree(rowNames, columnNames, allWeights, done);
 }
 
+/*
+ * This is the function to perform the less efficient version of the HUngarian Algorithm for the Assignment Problem.
+ * The complexity can range from O(n^4) to O(n!) depending on the input data. While the logic of the algorithm is
+ * easier to understand than the more efficient algorithm, it is much slower.
+ */
 void doLessEfficientHungarianAlgorithm(Matrix<int>& matrix2, vector<string>& rowNames,
                                        vector<string>& columnNames, vector<int>& allWeights)
 {
     matrix2.doStepOne();
     matrix2.colReduction();
     int exit = 0;
-    //matrix2.print();
 
     while (exit == 0)
     {
@@ -137,13 +151,15 @@ void doLessEfficientHungarianAlgorithm(Matrix<int>& matrix2, vector<string>& row
             matrix2.reset(toBeCovered);
         }
 
-
     }
 
     matrix2.findOptimalAssignment(rowNames, columnNames, allWeights);
 }
 
-
+/*
+ * Main function. I input the data into Matrix objects and perform both the more and less efficient implementations
+ * of the Hungarian Algorithm for the Assignment Problem.
+ */
 int main() {
 
     random_device randNum;
@@ -188,17 +204,13 @@ int main() {
     int tempTime2 = chrono::duration_cast<chrono::microseconds>(end2-start2).count();
     cout << "Time (us): " << tempTime2 << endl << endl;
 
-/*    loadInputIntoMatrix(matrix, inputFile, inputFile2, rowNames, columnNames, allWeights);
+    loadInputIntoMatrix(matrix, inputFile, inputFile2, rowNames, columnNames, allWeights);
 
     auto start = chrono::steady_clock::now();
     doHungarianAlgorithm(matrix, rowNames, columnNames, allWeights);
     auto end = chrono::steady_clock::now();
     int tempTime = chrono::duration_cast<chrono::microseconds>(end-start).count();
-    cout << "Time (us): " << tempTime << endl;*/
-
-
-
-
+    cout << "Time (us): " << tempTime << endl;
 
 
 

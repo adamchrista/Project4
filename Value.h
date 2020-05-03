@@ -5,16 +5,19 @@
 #ifndef HUNGARIANALGORITHM_VALUE_H
 #define HUNGARIANALGORITHM_VALUE_H
 
-//#include "RowOrColumn.h"
 
 #include "Matrix.h"
+
+/*
+ * This is the Value class. It is templated and represents an element in a Matrix. The data can be starred or primed
+ * using the isStarred boolean or isPrimed boolean.
+ */
 
 using namespace std;
 
 template<class T>
 class Value
 {
-
 
 private:
 
