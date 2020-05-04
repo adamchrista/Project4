@@ -294,7 +294,7 @@ void Matrix<T>::doStepFive(int index, vector<string>& allRowNames, vector<string
          {
              if (allColumns[j].isCovered == true)
              {
-                 allColumns[j].isCovered == false;
+                 allColumns[j].isCovered = false;
              }
 
              if (allRows[i].allValues[j].isPrimed == true)

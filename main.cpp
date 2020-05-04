@@ -169,7 +169,7 @@ int main() {
     ofstream outputFile;
     outputFile.open("munkresinput.txt");
 
-    int N = 10;
+    int N = 5;
     outputFile << N << endl;
     for (int i = 1; i <= N; i++)
     {
