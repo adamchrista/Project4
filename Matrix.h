@@ -33,6 +33,9 @@ private:
 public:
 
      Matrix();
+
+     //Functions between the dashed lines below belong to the Non-Trivial (Jonker-Volgenant) Implementation
+     //-------------------------------------------------------
      void addRow(RowOrColumn<T>&);
      void addCol(RowOrColumn<T>&);
      void doStepOne();
@@ -42,7 +45,10 @@ public:
      void doStepFive(int, vector<string>&, vector<string>&, vector<int>&, int&);
      void doStepSix(int, vector<string>&, vector<string>&, vector<int>&, int&);
      void doFinalStep(vector<string>&, vector<string>&, vector<int>&, int&);
+     //---------------------------------------------------------
 
+     //Functions between dashed lines below belong to the the Trivial (Munkres) Implementation
+     //---------------------------------------------------------
      void colReduction();
      vector<int> getToBeCovered2();
      void coverRowsAndCols(vector<int>);
@@ -53,7 +59,7 @@ public:
      void markRowsNoAssignments(vector<int>&);
      void markColumns(vector<int>&, vector<int>);
      void markRowsWithAssignments(vector<int>&, vector<int>);
-
+     //---------------------------------------------------------
      int getSize();
      void print();
      void primeMinVal(int);

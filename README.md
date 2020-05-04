@@ -1,7 +1,7 @@
 # Project4
 My Project 4 for CS3353
 
-#Trivial Solution Steps (O(n^4) to O(n!)):
+#Trivial (Munkres) Solution Steps (O(n^4) to O(n!)):
 
 Step 1 (Row Reduction):
 
@@ -33,7 +33,7 @@ Step 5 (Getting Final Answer):
 
 Find the optimal assignment
 
-#Non-Trivial Solution Steps (O(n^3)):
+#Non-Trivial (Jonker-Volgenant) Solution  Steps (O(n^3)):
 
 Step 1:
 

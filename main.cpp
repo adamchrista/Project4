@@ -157,7 +157,7 @@ void doLessEfficientHungarianAlgorithm(Matrix<int>& matrix2, vector<string>& row
 }
 
 /*
- * Main function. I input the data into Matrix objects and perform both the more and less efficient implementations
+ * Main function. It inputs the data into Matrix objects and perform both the more and less efficient implementations
  * of the Hungarian Algorithm for the Assignment Problem.
  */
 int main() {
@@ -169,7 +169,7 @@ int main() {
     ofstream outputFile;
     outputFile.open("munkresinput.txt");
 
-    int N = 5;
+    int N = 3;
     outputFile << N << endl;
     for (int i = 1; i <= N; i++)
     {

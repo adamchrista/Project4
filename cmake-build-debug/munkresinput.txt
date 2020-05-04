@@ -1,26 +1,11 @@
-5
-Worker1 Job1 75
-Worker1 Job2 32
-Worker1 Job3 82
-Worker1 Job4 73
-Worker1 Job5 61
-Worker2 Job1 59
-Worker2 Job2 49
-Worker2 Job3 45
-Worker2 Job4 29
-Worker2 Job5 28
-Worker3 Job1 52
-Worker3 Job2 66
-Worker3 Job3 77
-Worker3 Job4 98
-Worker3 Job5 93
-Worker4 Job1 50
-Worker4 Job2 84
-Worker4 Job3 78
-Worker4 Job4 38
-Worker4 Job5 33
-Worker5 Job1 26
-Worker5 Job2 28
-Worker5 Job3 92
-Worker5 Job4 52
-Worker5 Job5 61
+3
+Worker1 Job1 30
+Worker1 Job2 25
+Worker1 Job3 10
+Worker2 Job1 15
+Worker2 Job2 10
+Worker2 Job3 20
+Worker3 Job1 25
+Worker3 Job2 20
+Worker3 Job3 15
+
